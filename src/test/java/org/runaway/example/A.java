@@ -2,8 +2,6 @@ package org.runaway.example;
 
 import org.runaway.exception.RunawayException;
 
-//import java.sql.SQLException;
-
 public class A {
 
   public static void main(String[] args) {
@@ -16,11 +14,10 @@ public class A {
       testParam = b.calc(testParam);
 
     } catch (/*SQLException |*/ RuntimeException e) {
-      RunawayException be = RunawayException.of(e);
-      be.snap("testParam", testParam);
-      //throw be;
+      RunawayException re = RunawayException.of(e);
+      re.snap("testParam", testParam);
       System.out.println(
-          String.format("Bubbled up exception: [%d] - %s", be.getTechSupportCode(), be));
+          String.format("Bubbled up exception: [%d] - %s", re.getTechSupportCode(), re));
     }
 
   }

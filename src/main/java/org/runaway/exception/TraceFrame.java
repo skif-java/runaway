@@ -12,7 +12,7 @@ import java.util.List;
  */
 
 class TraceFrame implements Serializable {
-  private static final long serialVersionUID = 20171103;
+  private static final long serialVersionUID = 20030101L;
 
   /**
    * Stack frame number (used in reverse order - [length-1 .. 0]).
