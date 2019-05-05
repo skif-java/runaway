@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * RunawayException represents situations not properly handled - app bug, e.g.
- * connection not open, null pointer where we expect initialized variable, index
+ * RunawayException is unchecked runtime exception raised in situations not properly handled -
+ * some application bug, connection not open, unexpected null pointer, index
  * out of bounds, etc.
- * 
+ *
  * <p>It is RuntimeException, so there is no need to declare each method as a buggy
- * method throwing SystemException. We still can catch it if we want to add some
+ * method throwing RunawayException. We still can catch it if we want to add some
  * debug info and not to rethrow other exception wrapped in another exception wrapped in
  * another exception, etc.
  * 
@@ -27,17 +27,17 @@ public class RunawayException extends RuntimeException implements Serializable {
    * Instance class name, considering subclasses.
    */
   private final String className;
-  
+
   private String causeExceptionName = null;
 
   private String causeExceptionMessage = null;
 
   /**
-   * Thread Id for this SystemException.
-   * Note: SystemExceptions created on different threads have different stack traces,
+   * Thread Id for this RunawayException.
+   * Note: RunawayExceptions created on different threads have different stack traces,
    * an example is bug thrown in scheduled HTTP proxy thread and caught/handled in this thread.
    */
-  private long threadId;
+  private final long threadId;
 
   /**
   * Stack trace frames - list of frames representing stack trace of original exception.
@@ -106,7 +106,6 @@ public class RunawayException extends RuntimeException implements Serializable {
       stackFrames.get(0).addSnapshot(snapshot);
     }
 
-    return;
   }
 
   /**
@@ -158,36 +157,34 @@ public class RunawayException extends RuntimeException implements Serializable {
   }
 
   /**
-   * Constructor of SystemException from another throwable.
+   * Constructor of RunawayException from another throwable.
    * This method leaves only one last message in the message stack,
    * as we already have stack trace in cause exception.
-   * Do NOT use this method if argument could be another instance of SystemException,
+   * Do NOT use this method if argument could be another instance of RunawayException,
    * use of(Throwable) instead.
    */
   public RunawayException(Throwable throwable) {
     this.className = this.getClass().getName();
+    this.threadId = Thread.currentThread().getId();
 
     // assert exception: we should not be here
     if (throwable == null) {
       return;
     }
 
-    threadId = Thread.currentThread().getId();
-
     // if we keep original source every time,
     // we might have too many stack traces - at least 2.
     // so we just take ORIGINAL stack trace and keep it here.
-    causeExceptionName = throwable.getClass().getName();
-    causeExceptionMessage = throwable.getMessage();
+    this.causeExceptionName = throwable.getClass().getName();
+    this.causeExceptionMessage = throwable.getMessage();
 
     // copy original cause complete stack trace into our custom stackFrames
     StackTraceElement[] originalStack = throwable.getStackTrace();
     setStackFrames(originalStack);
-    originalStack = null;
   }
 
   /**
-   * Constructor of SystemException from another SystemException of another thread
+   * Constructor of RunawayException from another RunawayException of another thread
    * and having different stack trace that we also want to keep.
    * @param different instance of this exception.
    */
@@ -200,7 +197,7 @@ public class RunawayException extends RuntimeException implements Serializable {
     this.className = this.getClass().getName();
     this.threadId = Thread.currentThread().getId();
 
-    // get all info from another SystemException including stack trace
+    // get all info from another RunawayException including stack trace
     // as this exception message
     causeExceptionName = another.causeExceptionName;
     causeExceptionMessage = another.causeExceptionMessage;
@@ -216,12 +213,11 @@ public class RunawayException extends RuntimeException implements Serializable {
     if (!appTraceNumber.isUndefined()) {
       // unlikely but possible, add snapshots to the first (the most recent) frame
       // as the oldest frame most likely will be cut off
-      while (stackFrames.size() > 0) {
+      while (!stackFrames.isEmpty()) {
         if (stackFrames.get(0).getTraceNumber().equals(appTraceNumber)) {
           break;
         }
         stackFrames.remove(0);
-        continue;
       } //-- while
     } //-- if
   }
@@ -261,7 +257,7 @@ public class RunawayException extends RuntimeException implements Serializable {
    * @param sourceStack  Java standard original StackTraceElement[].
    */
 
-  void setStackFrames(StackTraceElement[] sourceStack) {
+  private void setStackFrames(StackTraceElement[] sourceStack) {
     if (sourceStack == null) {
       //-- should not be here
       throw new IllegalArgumentException("sourceStack is null");
@@ -273,7 +269,7 @@ public class RunawayException extends RuntimeException implements Serializable {
       return;
     }
 
-    stackFrames = new ArrayList<TraceFrame>(stackLength);
+    stackFrames = new ArrayList<>(stackLength);
     int stackFrameNumber = stackLength;
 
     for (StackTraceElement traceElement: sourceStack) {
@@ -349,7 +345,6 @@ public class RunawayException extends RuntimeException implements Serializable {
     printStackFrames = stackFrames.subList(0, printLimit);
 
     for (TraceFrame frame: printStackFrames) {
-      // buffer.append("\r\n");
       //-- reverse stack frame index
       buffer.append("->> ");
       buffer.append(frame.getTraceNumber().getValue());

@@ -1,4 +1,4 @@
-package org.runaway.exception;
+package org.runaway.example;
 
 import org.runaway.exception.RunawayException;
 
