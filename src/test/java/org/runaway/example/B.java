@@ -15,10 +15,10 @@ public class B {
             x = 73;
             return "abcd";
         } catch(RuntimeException e) {
-            RunawayException be = RunawayException.of(e);
-            be.snap("paramA", paramA);
-            be.snap("x", x);
-            throw be;
+            RunawayException re = RunawayException.of(e);
+            re.snap("paramA", paramA);
+            re.snap("x", x);
+            throw re;
         }
     }
 

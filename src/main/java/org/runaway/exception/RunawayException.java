@@ -21,7 +21,7 @@ import java.util.UUID;
  */
 
 public class RunawayException extends RuntimeException implements Serializable {
-  private static final long serialVersionUID = 20171103L;
+  private static final long serialVersionUID = 20030101L;
 
   /**
    * Instance class name, considering subclasses.

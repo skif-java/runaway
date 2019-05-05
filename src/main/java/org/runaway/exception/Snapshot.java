@@ -8,8 +8,8 @@ import java.io.Serializable;
 */
 
 class Snapshot implements Serializable {
-  private static final long serialVersionUID = 20171102L;
-  
+  private static final long serialVersionUID = 20030101L;
+
   /**
    * Name of variable, or any other info or id string.
    */

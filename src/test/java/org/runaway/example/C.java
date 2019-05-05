@@ -19,12 +19,12 @@ public class C {
         data = "item345";
         return data;
     } catch (RuntimeException | SQLException e) {
-      RunawayException be = RunawayException.of(e);
-        be.snap("paramA", paramA);
-        be.snap("paramB", paramB);
-        be.snap("data", data);
-        be.snap("jj", jj);
-        throw be;
+      RunawayException re = RunawayException.of(e);
+        re.snap("paramA", paramA);
+        re.snap("paramB", paramB);
+        re.snap("data", data);
+        re.snap("jj", jj);
+        throw re;
         }
     }
 }
